@@ -23,7 +23,7 @@ public class goalZone : MonoBehaviour
         {
             if (movement.player.groundDetected)
             {
-                SceneManager.LoadScene(0);
+                gameManager.instance.EndLevel();
             }
         }
     }

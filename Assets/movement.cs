@@ -33,6 +33,8 @@ public class movement : MonoBehaviour
     public float respawnLevel = -7.5f;
     private Vector3 restartPosition;
     public static movement player { get; private set; }
+    private bool hasControl = true;
+    public float kbTime = 0.2f;
     // Start is called before the first frame update
     void Awake()
     {
@@ -71,15 +73,19 @@ public class movement : MonoBehaviour
         if (transform.position.y < respawnLevel)
         {
             transform.position = restartPosition;
+            gameManager.instance.lives--;
         }
         Vector3 move = Input.GetAxis("Vertical") * transform.forward * speed;
         move += Input.GetAxis("Horizontal") * transform.right * speed;
         move += verticalSpeed * Vector3.up;
         //transform.Translate(move * Time.fixedDeltaTime);
-        rb.velocity = move;
+        if (hasControl)
+        {
+            rb.velocity = move;
+        }
         onGround = false;
         if (coyoteTimer > 0)
-        {
+        { 
             coyoteTimer--;
         }
 
@@ -104,5 +110,20 @@ public class movement : MonoBehaviour
             coyoteTimer = coyoteFrames;
         }
         groundDetected = onGround;
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.GetComponent<projectile>() != null)
+        {
+            hasControl = false;
+            
+            StartCoroutine(controlTimer());
+        }
+    }
+    private IEnumerator controlTimer()
+    {
+        yield return new WaitForSeconds(kbTime);
+        hasControl = true;
+        yield break;
     }
 }
